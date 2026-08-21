@@ -13,7 +13,7 @@ if (!expected) {
 }
 
 if (password === expected) {
-  const maxAge = 60 * 60 * 24 * 30;
+      const maxAge = 60 * 60;
   res.setHeader('Set-Cookie', `dash_auth=ok; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${maxAge}`);
   res.status(200).json({ ok: true });
 } else {
