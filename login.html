@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>เข้าสู่ระบบ - Dashboard Zeagame</title>
+<style>
+  :root{
+    --bg:#F7FBF5;
+    --card:#ffffff;
+    --pastel:#B7E4C7;
+    --pastel-soft:#DFF3E6;
+    --accent:#2F6B45;
+    --accent2:#4C9A6B;
+    --text:#33403A;
+    --text-mute:#6b7c73;
+    --border:#DCEEE3;
+    --shadow: 0 4px 20px rgba(47,107,69,0.12);
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-family:"Noto Sans Thai","Sarabun",-apple-system,"Segoe UI",sans-serif;
+    background:linear-gradient(135deg,var(--pastel) 0%, var(--bg) 100%);
+    color:var(--text);
+    padding:20px;
+  }
+  .card{
+    background:var(--card);
+    border-radius:18px;
+    padding:36px 32px;
+    box-shadow:var(--shadow);
+    width:100%;
+    max-width:360px;
+    text-align:center;
+  }
+  .card h1{font-size:1.3rem;color:var(--accent);margin:0 0 6px 0;}
+  .card p{color:var(--text-mute);font-size:0.85rem;margin:0 0 22px 0;}
+  input[type=password]{
+    width:100%;
+    padding:12px 14px;
+    border-radius:10px;
+    border:1px solid var(--border);
+    font-size:1rem;
+    font-family:inherit;
+    margin-bottom:12px;
+    background:var(--bg);
+    color:var(--text);
+  }
+  button{
+    width:100%;
+    padding:12px;
+    border-radius:10px;
+    border:none;
+    background:var(--accent);
+    color:white;
+    font-size:1rem;
+    font-weight:600;
+    font-family:inherit;
+    cursor:pointer;
+  }
+  button:hover{background:var(--accent2);}
+  button:disabled{opacity:0.6;cursor:default;}
+  #err{color:#c96b6b;font-size:0.85rem;margin-top:12px;min-height:1.2em;}
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#182019;
+      --card:#212b23;
+      --pastel:#2c4636;
+      --accent:#9fe0b7;
+      --accent2:#7cc79a;
+      --text:#e7f2ea;
+      --text-mute:#9bb0a2;
+      --border:#324437;
+      --shadow:0 4px 20px rgba(0,0,0,0.4);
+    }
+    button{color:#182019;}
+  }
+</style>
+</head>
+<body>
+  <div class="card">
+    <h1>🔒 Dashboard การตลาด</h1>
+    <p>กรุณาใส่รหัสผ่านเพื่อเข้าดูข้อมูล Ads Zeagame 2026</p>
+    <input type="password" id="pw" placeholder="รหัสผ่าน" autofocus>
+    <button id="btn">เข้าสู่ระบบ</button>
+    <div id="err"></div>
+  </div>
+<script>
+const pw = document.getElementById('pw');
+const btn = document.getElementById('btn');
+const err = document.getElementById('err');
+
+async function submit(){
+  const password = pw.value;
+  if(!password) return;
+  btn.disabled = true;
+  err.textContent = '';
+  try{
+    const res = await fetch('/api/login', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({password})
+    });
+    const data = await res.json();
+    if(data.ok){
+      location.href = '/';
+    } else {
+      err.textContent = data.error || 'รหัสผ่านไม่ถูกต้อง';
+      btn.disabled = false;
+    }
+  }catch(e){
+    err.textContent = 'เกิดข้อผิดพลาด กรุณาลองใหม่';
+    btn.disabled = false;
+  }
+}
+
+btn.addEventListener('click', submit);
+pw.addEventListener('keydown', (e)=>{ if(e.key==='Enter') submit(); });
+</script>
+</body>
+</html>
