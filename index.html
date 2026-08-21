@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard การตลาด - Zeagame</title>
+<style>
+  :root{
+    --bg:#F7FBF5;
+    --card:#ffffff;
+    --pastel:#B7E4C7;
+    --pastel-soft:#DFF3E6;
+    --accent:#2F6B45;
+    --accent2:#4C9A6B;
+    --coral:#F4B6B6;
+    --text:#33403A;
+    --text-mute:#6b7c73;
+    --border:#DCEEE3;
+    --shadow: 0 2px 10px rgba(47,107,69,0.08);
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:"Noto Sans Thai","Sarabun",-apple-system,"Segoe UI",sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    padding:20px;
+  }
+  h1{font-size:1.4rem;margin:0 0 4px 0;color:var(--accent);}
+  .sub{color:var(--text-mute);font-size:0.85rem;}
+  .wrap{max-width:1100px;margin:0 auto;}
+  header{
+    background:linear-gradient(135deg,var(--pastel) 0%, var(--pastel-soft) 100%);
+    border-radius:16px;
+    padding:18px 22px;
+    margin-bottom:18px;
+    box-shadow:var(--shadow);
+  }
+  .filter-bar{
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+    align-items:center;
+    margin-top:14px;
+  }
+  .seg{
+    display:flex;
+    background:#ffffffaa;
+    border-radius:10px;
+    padding:4px;
+    gap:2px;
+  }
+  .seg button{
+    border:none;
+    background:transparent;
+    padding:8px 14px;
+    border-radius:8px;
+    cursor:pointer;
+    font-size:0.85rem;
+    color:var(--accent);
+    font-weight:600;
+    font-family:inherit;
+  }
+  .seg button.active{
+    background:var(--accent);
+    color:white;
+  }
+  .filter-bar input[type=date]{
+    border:1px solid var(--border);
+    border-radius:8px;
+    padding:7px 10px;
+    font-family:inherit;
+    font-size:0.85rem;
+    background:white;
+    color:var(--text);
+  }
+  .nav-btn{
+    border:1px solid var(--accent2);
+    background:white;
+    color:var(--accent);
+    border-radius:8px;
+    padding:7px 12px;
+    cursor:pointer;
+    font-size:0.85rem;
+    font-family:inherit;
+  }
+  .nav-btn:hover{background:var(--pastel-soft);}
+  #rangeLabel{font-weight:700;color:var(--accent);font-size:0.95rem;margin-left:4px;}
+  #status{
+    font-size:0.8rem;color:var(--text-mute);margin-top:10px;
+  }
+  .kpi-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(190px,1fr));
+    gap:14px;
+    margin-bottom:18px;
+  }
+  .kpi{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:14px;
+    padding:16px 18px;
+    box-shadow:var(--shadow);
+  }
+  .kpi .label{font-size:0.78rem;color:var(--text-mute);margin-bottom:6px;}
+  .kpi .value{font-size:1.5rem;font-weight:700;color:var(--accent);}
+  .kpi .delta{font-size:0.78rem;margin-top:6px;}
+  .delta.up{color:var(--accent2);}
+  .delta.down{color:#c96b6b;}
+  .card{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:14px;
+    padding:18px 20px;
+    box-shadow:var(--shadow);
+    margin-bottom:18px;
+  }
+  .card h2{font-size:1rem;color:var(--accent);margin:0 0 12px 0;}
+  #insights{
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+  }
+  #insights .line{
+    background:var(--pastel-soft);
+    border-left:4px solid var(--accent2);
+    padding:9px 12px;
+    border-radius:8px;
+    font-size:0.88rem;
+  }
+  table{width:100%;border-collapse:collapse;font-size:0.85rem;}
+  th,td{text-align:left;padding:9px 8px;border-bottom:1px solid var(--border);}
+  th{color:var(--text-mute);font-weight:600;cursor:pointer;user-select:none;}
+  th:hover{color:var(--accent);}
+  tbody tr:hover{background:var(--pastel-soft);}
+  .roas-good{color:var(--accent2);font-weight:700;}
+  .roas-bad{color:#c96b6b;font-weight:700;}
+  canvas{width:100%;display:block;}
+  .progress-outer{
+    background:var(--pastel-soft);
+    border-radius:20px;
+    height:22px;
+    overflow:hidden;
+    margin-top:10px;
+  }
+  .progress-inner{
+    background:linear-gradient(90deg,var(--accent2),var(--accent));
+    height:100%;
+    border-radius:20px 0 0 20px;
+    transition:width 0.4s ease;
+  }
+  .progress-label{display:flex;justify-content:space-between;font-size:0.82rem;color:var(--text-mute);margin-top:6px;}
+  footer{text-align:center;color:var(--text-mute);font-size:0.78rem;margin:24px 0 8px;}
+  .loading{padding:40px;text-align:center;color:var(--text-mute);}
+  .err{background:#fdecec;color:#a33;padding:12px 16px;border-radius:10px;font-size:0.85rem;margin-bottom:14px;}
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#182019;
+      --card:#212b23;
+      --pastel:#2c4636;
+      --pastel-soft:#24352a;
+      --accent:#9fe0b7;
+      --accent2:#7cc79a;
+      --text:#e7f2ea;
+      --text-mute:#9bb0a2;
+      --border:#324437;
+      --shadow:0 2px 10px rgba(0,0,0,0.35);
+    }
+    .filter-bar input[type=date], .nav-btn{background:var(--card);color:var(--text);}
+    #insights .line{color:var(--text);}
+    .err{background:#3a2323;color:#f2a3a3;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>📊 Dashboard การตลาด — Ads Zeagame 2026</h1>
+    <div class="sub" id="asOf">กำลังโหลดข้อมูล...</div>
+    <div class="filter-bar">
+      <div class="seg" id="periodSeg">
+        <button data-mode="day">รายวัน</button>
+        <button data-mode="week">รายสัปดาห์</button>
+        <button data-mode="month">รายเดือน</button>
+        <button data-mode="all">ทั้งหมด</button>
+      </div>
+      <input type="date" id="datePick">
+      <button class="nav-btn" id="prevBtn">‹ ก่อนหน้า</button>
+      <button class="nav-btn" id="nextBtn">ถัดไป ›</button>
+      <span id="rangeLabel"></span>
+    </div>
+    <div id="status"></div>
+  </header>
+
+  <div id="app">
+    <div class="loading">กำลังดึงข้อมูลจาก Google Sheet…</div>
+  </div>
+
+  <footer>ข้อมูลทั้งหมดดึงจาก Google Sheet "Ads Zeagame 2026" เท่านั้น ไม่ใช้ข้อมูลจากแหล่งอื่น</footer>
+</div>
+
+<script>
+const SHEET_ID = "1B_JGkr_dlY5-3RPpLBmYUkVrdbQuWmParLaUPJme9lU";
+const MONTH_TABS = [
+  {name:"January", gid:"580831401", month:1, year:2026},
+  {name:"Febuary", gid:"667775112", month:2, year:2026},
+  {name:"March", gid:"1530419628", month:3, year:2026},
+  {name:"April", gid:"485260063", month:4, year:2026},
+  {name:"May", gid:"1636002236", month:5, year:2026},
+  {name:"June", gid:"546091146", month:6, year:2026},
+  {name:"July", gid:"85051983", month:7, year:2026},
+  {name:"August", gid:"1766232008", month:8, year:2026},
+  // เพิ่มเดือนใหม่ที่นี่เมื่อมีแท็บเดือนใหม่ในชีต เช่น:
+  // {name:"September", gid:"XXXXXXXXX", month:9, year:2026},
+];
+const TARGET_TAB_GID = "257060407";
+
+const THAI_MONTHS = ["ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.","ก.ค.","ส.ค.","ก.ย.","ต.ค.","พ.ย.","ธ.ค."];
+const THAI_MONTHS_FULL = ["มกราคม","กุมภาพันธ์","มีนาคม","เมษายน","พฤษภาคม","มิถุนายน","กรกฎาคม","สิงหาคม","กันยายน","ตุลาคม","พฤศจิกายน","ธันวาคม"];
+
+function csvUrl(gid){
+  return `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${gid}`;
+}
+
+// --- CSV parsing (handles quoted fields with commas) ---
+function parseCSV(text){
+  const rows = [];
+  let row = [], field = "", inQuotes = false;
+  for(let i=0;i<text.length;i++){
+    const c = text[i];
+    if(inQuotes){
+      if(c === '"'){
+        if(text[i+1] === '"'){ field += '"'; i++; }
+        else inQuotes = false;
+      } else field += c;
+    } else {
+      if(c === '"') inQuotes = true;
+      else if(c === ','){ row.push(field); field=""; }
+      else if(c === '\n'){ row.push(field); rows.push(row); row=[]; field=""; }
+      else if(c === '\r'){ /* skip */ }
+      else field += c;
+    }
+  }
+  if(field.length || row.length){ row.push(field); rows.push(row); }
+  return rows;
+}
+
+function num(v){
+  if(v==null) return 0;
+  const s = String(v).replace(/,/g,"").trim();
+  if(s === "" || s.includes("#DIV")) return 0;
+  const n = parseFloat(s);
+  return isNaN(n) ? 0 : n;
+}
+
+const DATE_RE = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/;
+function parseBEDate(s){
+  const m = DATE_RE.exec(String(s).trim());
+  if(!m) return null;
+  const d = parseInt(m[1],10), mo = parseInt(m[2],10), yBE = parseInt(m[3],10);
+  const yCE = yBE - 543;
+  const dt = new Date(Date.UTC(yCE, mo-1, d));
+  if(dt.getUTCMonth() !== mo-1) return null;
+  return dt;
+}
+function dkey(dt){ return dt.toISOString().slice(0,10); }
+
+// --- Parse a monthly tab: team-total daily series + per-product series ---
+// expectedMonth/expectedYear (CE) are trusted over the sheet's own date text: the source sheet
+// has a copy-paste bug where some months' "team total" block prints January's dates (day number
+// is correct, month/year text is not) — day-of-month from the cell is kept, month/year is forced
+// to the tab's known identity so mislabeled rows land on the right date instead of colliding with
+// (and being de-duped away by) another month's real data.
+function parseMonthTab(rows, expectedMonth, expectedYear){
+  const teamDaily = [];
+  const products = []; // {name, daily:[{date,sales,adCost,roas}]}
+
+  // find all header rows/cols where a cell is "วันที่" or "ยอดทีม" (both used across months for the
+  // same header shape) with "ยอดขาย"/"ค่าแอด"/roas labels somewhere in the next few columns —
+  // column spacing after the date label varies between blocks (product blocks are contiguous,
+  // the team-total block has an extra blank column), so search a window instead of fixed offsets.
+  const blocks = [];
+  for(let r=0;r<rows.length;r++){
+    const row = rows[r];
+    for(let c=0;c<row.length;c++){
+      const cell = (row[c]||"").trim();
+      if(cell === "วันที่" || cell === "ยอดทีม"){
+        let salesCol=-1, adCol=-1, roasCol=-1;
+        for(let cc=c+1; cc<=c+6 && cc<row.length; cc++){
+          const lbl = (row[cc]||"").trim();
+          if(lbl.startsWith("ยอดขาย") && salesCol===-1) salesCol=cc;
+          else if(lbl.startsWith("ค่าแอด") && adCol===-1) adCol=cc;
+          else if(/roas/i.test(lbl) && roasCol===-1) roasCol=cc;
+        }
+        if(salesCol>-1 && adCol>-1){
+          blocks.push({headerRow:r, dateCol:c, salesCol, adCol, roasCol});
+        }
+      }
+    }
+  }
+
+  // The per-product grid always sits in the topmost header row found; any block appearing in a
+  // later, separate row is the pre-computed team/all-products daily total (label text for this
+  // block varies between months — "ยอดทีม" in some, "วันที่" in others — so detect it structurally
+  // by row position rather than by label).
+  let teamBlock = null;
+  if(blocks.length){
+    const minHeaderRow = Math.min(...blocks.map(b=>b.headerRow));
+    const teamCandidates = blocks.filter(b=>b.headerRow!==minHeaderRow);
+    if(teamCandidates.length) teamBlock = teamCandidates[0];
+  }
+  const productBlocks = blocks.filter(b=>b!==teamBlock && (!teamBlock || b.headerRow!==teamBlock.headerRow));
+
+  // The date is only written once per row, under the leftmost block in that header row — every
+  // other block's own "วันที่" column is left blank (it shares that row's date implicitly), so
+  // all blocks sharing a header row must read the date from the leftmost block's column.
+  const anchorDateColByRow = {};
+  for(const b of blocks){
+    anchorDateColByRow[b.headerRow] = Math.min(b.dateCol, anchorDateColByRow[b.headerRow] ?? b.dateCol);
+  }
+
+  function readDailyBlock(block){
+    const out = [];
+    const dateCol = anchorDateColByRow[block.headerRow];
+    for(let r=block.headerRow+1; r<rows.length; r++){
+      const row = rows[r];
+      const dateStr = (row[dateCol]||"").trim();
+      const rawDt = parseBEDate(dateStr);
+      if(!rawDt) break; // stops at "รวม" row or blank
+      const dt = new Date(Date.UTC(expectedYear, expectedMonth-1, rawDt.getUTCDate()));
+      if(dt.getUTCMonth() !== expectedMonth-1) break; // template row for a day that doesn't exist in this month (e.g. Feb 30/31 copied from a 31-day template) — end of real data for this block
+      out.push({
+        date: dt,
+        key: dkey(dt),
+        sales: num(row[block.salesCol]),
+        adCost: num(row[block.adCol]),
+      });
+    }
+    return out;
+  }
+
+  // find product name for each block: search 1-3 rows above header for nearest non-empty cell near dateCol
+  for(const b of productBlocks){
+    let name = null;
+    for(let r=b.headerRow-1; r>=Math.max(0,b.headerRow-4) && !name; r--){
+      const row = rows[r];
+      for(let c=Math.max(0,b.dateCol-1); c<=b.dateCol+2; c++){
+        const v = (row[c]||"").trim();
+        if(v){ name = v; break; }
+      }
+    }
+    products.push({ name: name || `สินค้า (คอลัมน์ ${b.dateCol})`, daily: readDailyBlock(b) });
+  }
+
+  if(teamBlock){
+    teamDaily.push(...readDailyBlock(teamBlock));
+  }
+
+  return { teamDaily, products };
+}
+
+function parseTargetTab(rows){
+  let yearTarget = null;
+  for(let r=0;r<rows.length;r++){
+    const row = rows[r];
+    for(let c=0;c<row.length;c++){
+      if((row[c]||"").trim() === "ปี 69"){
+        // look in the next couple rows for "เป้า" label + numeric value
+        for(let rr=r; rr<=r+2 && rr<rows.length; rr++){
+          const rrow = rows[rr];
+          for(let cc=0;cc<rrow.length;cc++){
+            if((rrow[cc]||"").trim().startsWith("เป้า")){
+              const v = num(rrow[cc+1]);
+              if(v>0){ yearTarget = v; }
+            }
+          }
+        }
+      }
+    }
+  }
+  return { yearTarget };
+}
+
+// --- Data fetch & merge ---
+async function fetchTab(gid){
+  const res = await fetch(csvUrl(gid), {cache:"no-store"});
+  if(!res.ok) throw new Error("โหลดข้อมูลไม่สำเร็จ (gid "+gid+")");
+  const text = await res.text();
+  return parseCSV(text);
+}
+
+let DATASET = null;
+
+async function loadAll(){
+  const statusEl = document.getElementById("status");
+  const results = await Promise.allSettled(MONTH_TABS.map(t => fetchTab(t.gid)));
+  const teamDaily = [];
+  const productMap = new Map(); // name -> daily[]
+  let loadedMonths = 0, failedMonths = [];
+
+  results.forEach((res, i) => {
+    if(res.status === "fulfilled"){
+      loadedMonths++;
+      const parsed = parseMonthTab(res.value, MONTH_TABS[i].month, MONTH_TABS[i].year);
+      teamDaily.push(...parsed.teamDaily);
+      for(const p of parsed.products){
+        if(!productMap.has(p.name)) productMap.set(p.name, []);
+        productMap.get(p.name).push(...p.daily);
+      }
+    } else {
+      failedMonths.push(MONTH_TABS[i].name);
+    }
+  });
+
+  teamDaily.sort((a,b)=>a.date-b.date);
+  // de-dupe by date key (keep first)
+  const seen = new Set();
+  const teamDailyClean = teamDaily.filter(d=>{
+    if(seen.has(d.key)) return false;
+    seen.add(d.key); return true;
+  });
+
+  let target = null;
+  try{
+    const trows = await fetchTab(TARGET_TAB_GID);
+    target = parseTargetTab(trows).yearTarget;
+  }catch(e){ /* target tab optional */ }
+
+  if(failedMonths.length){
+    statusEl.innerHTML = `<span style="color:#c96b6b">โหลดบางเดือนไม่สำเร็จ: ${failedMonths.join(", ")}</span>`;
+  } else {
+    statusEl.textContent = `โหลดข้อมูลสำเร็จ ${loadedMonths} เดือน จาก Google Sheet โดยตรง`;
+  }
+
+  DATASET = { teamDaily: teamDailyClean, productMap, target };
+  return DATASET;
+}
+
+// --- Aggregation helpers ---
+function isoWeekStart(dt){
+  const d = new Date(dt);
+  const day = (d.getUTCDay()+6)%7; // Mon=0
+  d.setUTCDate(d.getUTCDate()-day);
+  return d;
+}
+function isoWeekEnd(dt){
+  const s = isoWeekStart(dt);
+  const e = new Date(s); e.setUTCDate(e.getUTCDate()+6);
+  return e;
+}
+function fmtDate(dt){
+  return `${dt.getUTCDate()} ${THAI_MONTHS[dt.getUTCMonth()]} ${dt.getUTCFullYear()+543}`;
+}
+function fmtNum(n){ return Math.round(n).toLocaleString("th-TH"); }
+function fmtRoas(n){ return n.toFixed(2); }
+
+function aggregate(dailyArr){
+  let sales=0, adCost=0;
+  for(const d of dailyArr){ sales+=d.sales; adCost+=d.adCost; }
+  return { sales, adCost, roas: adCost>0 ? sales/adCost : 0, days: dailyArr.length };
+}
+
+function inRange(dailyArr, start, end){
+  return dailyArr.filter(d => d.date>=start && d.date<=end);
+}
+
+// --- App state ---
+let mode = "day";
+let anchor = null; // current Date anchor for navigation
+
+function clampAnchorToData(){
+  if(!DATASET.teamDaily.length) return;
+  const min = DATASET.teamDaily[0].date;
+  const max = DATASET.teamDaily[DATASET.teamDaily.length-1].date;
+  if(!anchor) anchor = max;
+  if(anchor<min) anchor=min;
+  if(anchor>max) anchor=max;
+}
+
+function currentRange(){
+  if(mode==="day"){
+    return {start:anchor, end:anchor, label: fmtDate(anchor)};
+  }
+  if(mode==="week"){
+    const s = isoWeekStart(anchor), e = isoWeekEnd(anchor);
+    return {start:s, end:e, label:`สัปดาห์ ${fmtDate(s)} – ${fmtDate(e)}`};
+  }
+  if(mode==="month"){
+    const s = new Date(Date.UTC(anchor.getUTCFullYear(), anchor.getUTCMonth(),1));
+    const e = new Date(Date.UTC(anchor.getUTCFullYear(), anchor.getUTCMonth()+1,0));
+    return {start:s, end:e, label:`${THAI_MONTHS_FULL[anchor.getUTCMonth()]} ${anchor.getUTCFullYear()+543}`};
+  }
+  // all
+  const min = DATASET.teamDaily[0].date, max = DATASET.teamDaily[DATASET.teamDaily.length-1].date;
+  return {start:min, end:max, label:`ทั้งหมด (${fmtDate(min)} – ${fmtDate(max)})`};
+}
+
+function previousRange(range){
+  const spanMs = range.end - range.start;
+  const prevEnd = new Date(range.start.getTime() - 86400000);
+  const prevStart = new Date(prevEnd.getTime() - spanMs);
+  return {start:prevStart, end:prevEnd};
+}
+
+function navigate(dir){
+  if(mode==="day") anchor = new Date(anchor.getTime()+dir*86400000);
+  else if(mode==="week") anchor = new Date(anchor.getTime()+dir*7*86400000);
+  else if(mode==="month") anchor = new Date(Date.UTC(anchor.getUTCFullYear(), anchor.getUTCMonth()+dir, 1));
+  clampAnchorToData();
+  render();
+}
+
+// --- Rendering ---
+function renderKPI(cur, prev){
+  function delta(curV, prevV){
+    if(prevV===0) return null;
+    return ((curV-prevV)/prevV)*100;
+  }
+  function deltaHtml(d){
+    if(d===null) return "";
+    const up = d>=0;
+    return `<div class="delta ${up?'up':'down'}">${up?'▲':'▼'} ${Math.abs(d).toFixed(1)}% เทียบช่วงก่อนหน้า</div>`;
+  }
+  const dSales = delta(cur.sales, prev.sales);
+  const dAd = delta(cur.adCost, prev.adCost);
+  const dRoas = delta(cur.roas, prev.roas);
+
+  return `
+    <div class="kpi-grid">
+      <div class="kpi"><div class="label">ยอดขายรวม</div><div class="value">฿${fmtNum(cur.sales)}</div>${deltaHtml(dSales)}</div>
+      <div class="kpi"><div class="label">ค่าแอดรวม</div><div class="value">฿${fmtNum(cur.adCost)}</div>${deltaHtml(dAd)}</div>
+      <div class="kpi"><div class="label">ROAS รวม</div><div class="value">${fmtRoas(cur.roas)}</div>${deltaHtml(dRoas)}</div>
+      <div class="kpi"><div class="label">จำนวนวันในช่วงนี้</div><div class="value">${cur.days} วัน</div></div>
+    </div>`;
+}
+
+function renderInsights(cur, prev, productRows){
+  const lines = [];
+  if(prev.sales>0){
+    const d = ((cur.sales-prev.sales)/prev.sales)*100;
+    lines.push(`ยอดขายช่วงนี้${d>=0?'เพิ่มขึ้น':'ลดลง'} ${Math.abs(d).toFixed(1)}% เทียบกับช่วงก่อนหน้า`);
+  }
+  if(prev.adCost>0){
+    const d = ((cur.adCost-prev.adCost)/prev.adCost)*100;
+    lines.push(`ค่าแอดช่วงนี้${d>=0?'สูงขึ้น':'ต่ำลง'} ${Math.abs(d).toFixed(1)}% เทียบกับช่วงก่อนหน้า`);
+  }
+  if(productRows.length){
+    const best = productRows[0];
+    lines.push(`สินค้าที่ทำ ROAS ดีที่สุดในช่วงนี้คือ "${best.name}" (ROAS ${fmtRoas(best.roas)})`);
+    const worst = productRows[productRows.length-1];
+    if(worst.adCost>0 && worst.name!==best.name){
+      lines.push(`สินค้าที่ควรพิจารณาปรับงบคือ "${worst.name}" (ROAS ${fmtRoas(worst.roas)})`);
+    }
+  }
+  if(!lines.length) lines.push("ยังไม่มีข้อมูลเพียงพอสำหรับสรุปผลในช่วงนี้");
+  return `<div id="insights">${lines.map(l=>`<div class="line">💡 ${l}</div>`).join("")}</div>`;
+}
+
+function renderChart(canvas, dailyArr){
+  const ctx = canvas.getContext("2d");
+  const W = canvas.width = canvas.clientWidth * 2;
+  const H = canvas.height = 260*2;
+  ctx.scale(1,1);
+  ctx.clearRect(0,0,W,H);
+  if(!dailyArr.length) return;
+
+  const pad = {l:70*2, r:20*2, t:20*2, b:36*2};
+  const plotW = W-pad.l-pad.r, plotH = H-pad.t-pad.b;
+  const maxVal = Math.max(...dailyArr.map(d=>Math.max(d.sales,d.adCost)), 1);
+  const n = dailyArr.length;
+  const barW = Math.max(2, plotW/n*0.35);
+
+  // axes
+  ctx.strokeStyle = getComputedStyle(document.body).getPropertyValue('--border');
+  ctx.lineWidth = 2;
+  for(let g=0; g<=4; g++){
+    const y = pad.t + plotH*g/4;
+    ctx.beginPath(); ctx.moveTo(pad.l,y); ctx.lineTo(W-pad.r,y); ctx.stroke();
+    const val = maxVal*(1-g/4);
+    ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--text-mute');
+    ctx.font = "20px sans-serif";
+    ctx.textAlign="right";
+    ctx.fillText(fmtNum(val), pad.l-10, y+6);
+  }
+
+  dailyArr.forEach((d,i)=>{
+    const x = pad.l + plotW*(i+0.5)/n;
+    const salesH = plotH*(d.sales/maxVal);
+    const adH = plotH*(d.adCost/maxVal);
+    ctx.fillStyle = "#4C9A6B";
+    ctx.fillRect(x-barW, pad.t+plotH-salesH, barW*0.9, salesH);
+    ctx.fillStyle = "#F4B6B6";
+    ctx.fillRect(x, pad.t+plotH-adH, barW*0.9, adH);
+  });
+
+  // x labels (sparse)
+  ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--text-mute');
+  ctx.font = "18px sans-serif";
+  ctx.textAlign="center";
+  const step = Math.max(1, Math.ceil(n/8));
+  dailyArr.forEach((d,i)=>{
+    if(i%step===0 || i===n-1){
+      const x = pad.l + plotW*(i+0.5)/n;
+      ctx.fillText(`${d.date.getUTCDate()}/${d.date.getUTCMonth()+1}`, x, H-pad.b+26);
+    }
+  });
+
+  // legend
+  ctx.fillStyle="#4C9A6B"; ctx.fillRect(pad.l, 6, 22,22);
+  ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--text');
+  ctx.textAlign="left"; ctx.font="20px sans-serif";
+  ctx.fillText("ยอดขาย", pad.l+30, 24);
+  ctx.fillStyle="#F4B6B6"; ctx.fillRect(pad.l+140, 6, 22,22);
+  ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--text');
+  ctx.fillText("ค่าแอด", pad.l+170, 24);
+}
+
+function productRowsForRange(start, end){
+  const rows = [];
+  for(const [name, daily] of DATASET.productMap.entries()){
+    const inR = inRange(daily, start, end);
+    const agg = aggregate(inR);
+    if(agg.sales>0 || agg.adCost>0){
+      rows.push({name, sales:agg.sales, adCost:agg.adCost, roas:agg.roas});
+    }
+  }
+  rows.sort((a,b)=>b.roas-a.roas);
+  return rows;
+}
+
+let sortState = {key:"sales", dir:-1};
+function renderTable(rows){
+  const sorted = [...rows].sort((a,b)=>(a[sortState.key]-b[sortState.key])*sortState.dir);
+  return `
+    <table>
+      <thead><tr>
+        <th data-key="name">สินค้า</th>
+        <th data-key="sales">ยอดขาย</th>
+        <th data-key="adCost">ค่าแอด</th>
+        <th data-key="roas">ROAS</th>
+      </tr></thead>
+      <tbody>
+        ${sorted.map(r=>`
+          <tr>
+            <td>${r.name}</td>
+            <td>฿${fmtNum(r.sales)}</td>
+            <td>฿${fmtNum(r.adCost)}</td>
+            <td class="${r.roas>=1.3?'roas-good':(r.roas<1?'roas-bad':'')}">${fmtRoas(r.roas)}</td>
+          </tr>`).join("")}
+      </tbody>
+    </table>`;
+}
+
+function renderTargetProgress(){
+  if(!DATASET.target) return "";
+  const totalSalesYTD = aggregate(DATASET.teamDaily).sales;
+  const pct = Math.min(100, (totalSalesYTD/DATASET.target)*100);
+  return `
+    <div class="card">
+      <h2>🎯 ยอดขายสะสม เทียบเป้าหมายทั้งปีของบริษัท 2569</h2>
+      <div class="sub" style="margin-bottom:6px;">เป้าหมาย ฿1,000,000,000 เป็นเป้าทั้งบริษัท (ทุกสินค้า) ส่วนยอดสะสมด้านล่างนับเฉพาะแคมเปญที่ติดตามในชีตนี้ จึงเป็นเพียงส่วนหนึ่งของภาพรวม ไม่ใช่ตัวเลขที่เทียบกันโดยตรงทั้งหมด</div>
+      <div class="progress-outer"><div class="progress-inner" style="width:${pct}%"></div></div>
+      <div class="progress-label">
+        <span>฿${fmtNum(totalSalesYTD)} จากเป้า ฿${fmtNum(DATASET.target)}</span>
+        <span>${pct.toFixed(1)}%</span>
+      </div>
+    </div>`;
+}
+
+function render(){
+  if(!DATASET) return;
+  clampAnchorToData();
+  const range = currentRange();
+  const cur = aggregate(inRange(DATASET.teamDaily, range.start, range.end));
+  const prevR = previousRange(range);
+  const prev = aggregate(inRange(DATASET.teamDaily, prevR.start, prevR.end));
+  const rows = productRowsForRange(range.start, range.end);
+
+  document.getElementById("rangeLabel").textContent = range.label;
+
+  const chartData = inRange(DATASET.teamDaily, range.start, range.end).length
+    ? inRange(DATASET.teamDaily, range.start, range.end)
+    : inRange(DATASET.teamDaily, range.start, range.end);
+
+  document.getElementById("app").innerHTML = `
+    ${renderKPI(cur, prev)}
+    <div class="card">
+      <h2>แนวโน้มยอดขาย vs ค่าแอด</h2>
+      <canvas id="chart" height="260"></canvas>
+    </div>
+    <div class="card">
+      <h2>สรุปให้เข้าใจง่าย</h2>
+      ${renderInsights(cur, prev, rows)}
+    </div>
+    ${renderTargetProgress()}
+    <div class="card">
+      <h2>รายละเอียดตามสินค้า (คลิกหัวตารางเพื่อจัดเรียง)</h2>
+      ${renderTable(rows)}
+    </div>
+  `;
+
+  renderChart(document.getElementById("chart"), inRange(DATASET.teamDaily, range.start, range.end));
+
+  document.querySelectorAll("th[data-key]").forEach(th=>{
+    th.addEventListener("click", ()=>{
+      const key = th.dataset.key;
+      if(sortState.key===key) sortState.dir*=-1;
+      else { sortState.key=key; sortState.dir=-1; }
+      document.querySelector(".card:last-child").querySelector("table").outerHTML = renderTable(rows);
+      document.querySelectorAll("th[data-key]").forEach(t=>t.onclick=null);
+      attachSortHandlers(rows);
+    });
+  });
+}
+function attachSortHandlers(rows){
+  document.querySelectorAll("th[data-key]").forEach(th=>{
+    th.addEventListener("click", ()=>{
+      const key = th.dataset.key;
+      if(sortState.key===key) sortState.dir*=-1;
+      else { sortState.key=key; sortState.dir=-1; }
+      const tableEl = th.closest("table");
+      tableEl.outerHTML = renderTable(rows);
+      attachSortHandlers(rows);
+    });
+  });
+}
+
+document.getElementById("periodSeg").addEventListener("click",(e)=>{
+  const btn = e.target.closest("button");
+  if(!btn) return;
+  mode = btn.dataset.mode;
+  document.querySelectorAll("#periodSeg button").forEach(b=>b.classList.toggle("active", b===btn));
+  document.getElementById("datePick").style.display = mode==="day" ? "inline-block":"none";
+  render();
+});
+document.getElementById("prevBtn").addEventListener("click",()=>navigate(-1));
+document.getElementById("nextBtn").addEventListener("click",()=>navigate(1));
+document.getElementById("datePick").addEventListener("change",(e)=>{
+  const v = e.target.value;
+  if(v){ anchor = new Date(v+"T00:00:00Z"); clampAnchorToData(); render(); }
+});
+
+(async function init(){
+  try{
+    await loadAll();
+    if(!DATASET.teamDaily.length){
+      document.getElementById("app").innerHTML = `<div class="err">ไม่พบข้อมูลรายวันในชีต กรุณาตรวจสอบโครงสร้างชีตอีกครั้ง</div>`;
+      return;
+    }
+    const max = DATASET.teamDaily[DATASET.teamDaily.length-1].date;
+    const lastWithData = [...DATASET.teamDaily].reverse().find(d=>d.sales>0 || d.adCost>0);
+    anchor = lastWithData ? lastWithData.date : max;
+    document.getElementById("datePick").value = anchor.toISOString().slice(0,10);
+    document.getElementById("datePick").max = max.toISOString().slice(0,10);
+    document.getElementById("datePick").min = DATASET.teamDaily[0].date.toISOString().slice(0,10);
+    document.querySelector('#periodSeg button[data-mode="day"]').classList.add("active");
+    document.getElementById("asOf").textContent = `ข้อมูล ณ วันที่โหลด: ${new Date().toLocaleString("th-TH")} (ดึงสดจาก Google Sheet ทุกครั้งที่เปิดหน้านี้)`;
+    render();
+  }catch(err){
+    document.getElementById("app").innerHTML = `<div class="err">เกิดข้อผิดพลาดในการโหลดข้อมูล: ${err.message}</div>`;
+  }
+})();
+</script>
+</body>
+</html>
